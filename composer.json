@@ -1,0 +1,13 @@
+{
+  "name": "filbertkm/httplib",
+  "type": "library",
+  "description": "Lightweight http library",
+  "require": {
+    "wikimedia/assert": "~0.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "Filbertkm\\Http\\": "src"
+    }
+  }
+}
