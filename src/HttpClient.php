@@ -40,11 +40,6 @@ class HttpClient {
 
 	public function connect() {
 		$this->conn = curl_init();
-
-		curl_setopt( $this->conn, CURLOPT_COOKIEFILE, $this->getCookieFileName() );
-		curl_setopt( $this->conn, CURLOPT_COOKIEJAR, $this->getCookieFileName() );
-		curl_setopt( $this->conn, CURLOPT_USERAGENT, $this->userAgent );
-		curl_setopt( $this->conn, CURLOPT_SSL_VERIFYPEER, false );
 	}
 
 	public function disconnect() {
@@ -84,7 +79,7 @@ class HttpClient {
 			$this->connect();
 		}
 
-		$headers[] = 'X-Wikimedia-Debug: 1';
+		//$headers[] = 'X-Wikimedia-Debug: 1';
 
 		$this->setCurlPostOpts( $url, $postFields, $headers );
 
@@ -113,7 +108,16 @@ class HttpClient {
 		return $response;
 	}
 
+	private function setGeneralCurlOpts() {
+		curl_setopt( $this->conn, CURLOPT_COOKIEFILE, $this->getCookieFileName() );
+		curl_setopt( $this->conn, CURLOPT_COOKIEJAR, $this->getCookieFileName() );
+		curl_setopt( $this->conn, CURLOPT_USERAGENT, $this->userAgent );
+		curl_setopt( $this->conn, CURLOPT_SSL_VERIFYPEER, false );
+	}
+
 	private function setCurlGetOpts( $url ) {
+		$this->setGeneralCurlOpts();
+
 		curl_setopt( $this->conn, CURLOPT_URL, $url );
 		curl_setopt( $this->conn, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $this->conn, CURLOPT_HEADER, 0 );
@@ -123,6 +127,8 @@ class HttpClient {
 	}
 
 	private function setCurlPostOpts( $url, $postFields, $headers = array() ) {
+		$this->setGeneralCurlOpts();
+
 		curl_setopt( $this->conn, CURLOPT_URL, $url );
 		curl_setopt( $this->conn, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $this->conn, CURLOPT_HEADER, 0 );
