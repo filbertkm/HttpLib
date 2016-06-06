@@ -87,6 +87,10 @@ class HttpClient {
 	}
 
 	public function multipart( $url, $postFields ) {
+		if ( !isset( $this->conn ) ) {
+			$this->connect();
+		}
+
 		$headers = array(
 			'Content-Type' => 'multipart/form-data'
 		);
