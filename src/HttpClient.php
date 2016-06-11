@@ -93,6 +93,28 @@ class HttpClient {
 
 	/**
 	 * @param string $url
+	 * @param string $destination
+	 */
+	public function download( $url, $destination ) {
+		$this->assertString( 'url', $url );
+		$this->assertString( 'destination', $destination );
+
+		if ( !isset( $this->conn ) ) {
+			$this->connect();
+		}
+
+		$this->setGeneralCurlOpts();
+		$this->setCurlGetOpts( $url );
+		$this->setTimeout( 300 );
+
+		// CURLOPT_FILE needs to be set after CURLOPT_RETURNTRANSFER
+		curl_setopt( $this->conn, CURLOPT_FILE, fopen( $destination, 'w' ) );
+
+		$this->request();
+	}
+
+	/**
+	 * @param string $url
 	 * @param string|array $postFields
 	 *
 	 * @throws InvalidArgumentException
@@ -109,9 +131,21 @@ class HttpClient {
 			'Content-Type' => 'multipart/form-data'
 		);
 
+
 		curl_setopt( $this->conn, CURLOPT_TIMEOUT, 500 );
 
 		return $this->post( $url, $postFields, $headers );
+	}
+
+	/**
+	 * @param int $timeout
+	 */
+	public function setTimeout( $timeout ) {
+		if ( !isset( $this->conn ) ) {
+			$this->connect();
+		}
+
+		curl_setopt( $this->conn, CURLOPT_TIMEOUT, $timeout );
 	}
 
 	private function request() {
@@ -139,6 +173,8 @@ class HttpClient {
 	}
 
 	private function setGeneralCurlOpts() {
+        curl_setopt( $this->conn, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $this->conn, CURLOPT_HEADER, 0 );
 		curl_setopt( $this->conn, CURLOPT_COOKIEFILE, $this->getCookieFileName() );
 		curl_setopt( $this->conn, CURLOPT_COOKIEJAR, $this->getCookieFileName() );
 		curl_setopt( $this->conn, CURLOPT_USERAGENT, $this->userAgent );
@@ -149,8 +185,6 @@ class HttpClient {
 		$this->setGeneralCurlOpts();
 
 		curl_setopt( $this->conn, CURLOPT_URL, $url );
-		curl_setopt( $this->conn, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt( $this->conn, CURLOPT_HEADER, 0 );
 		curl_setopt( $this->conn, CURLOPT_HTTPHEADER, array( null ) );
 		curl_setopt( $this->conn, CURLOPT_CUSTOMREQUEST, 'GET' );
 		curl_setopt( $this->conn, CURLOPT_POST, false );
@@ -161,8 +195,6 @@ class HttpClient {
 		$this->setGeneralCurlOpts();
 
 		curl_setopt( $this->conn, CURLOPT_URL, $url );
-		curl_setopt( $this->conn, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt( $this->conn, CURLOPT_HEADER, 0 );
 		curl_setopt( $this->conn, CURLOPT_POST, true );
 		curl_setopt( $this->conn, CURLOPT_CUSTOMREQUEST, 'POST' );
 		curl_setopt( $this->conn, CURLOPT_HTTPHEADER, array_merge( array( 'Expect:' ), $headers ) );
