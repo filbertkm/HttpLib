@@ -2,8 +2,6 @@
 
 namespace Filbertkm\Http;
 
-use Wikimedia\Assert\Assert;
-
 class HttpClient {
 
 	/**
@@ -29,10 +27,12 @@ class HttpClient {
 	/**
 	 * @param string $userAgent
 	 * @param string $cookiePrefix
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	public function __construct( $userAgent, $cookiePrefix ) {
-		Assert::parameterType( 'string', $userAgent, '$userAgent' );
-		Assert::parameterType( 'string', $cookiePrefix, '$cookiePrefix' );
+		$this->assertString( 'userAgent', $userAgent );
+		$this->assertString( 'cookiePrefix', $cookiePrefix );
 
 		$this->userAgent = $userAgent;
 		$this->cookiePrefix = $cookiePrefix;
@@ -51,9 +51,12 @@ class HttpClient {
 
 	/**
 	 * @param string $url
+	 *
+	 * @throws InvalidArgumentException
+	 * @return string|false
 	 */
 	public function get( $url ) {
-		Assert::parameterType( 'string', $url, '$url' );
+		$this->assertString( 'url', $url );
 
 		if ( !isset( $this->conn ) ) {
 			$this->connect();
@@ -66,10 +69,14 @@ class HttpClient {
 
 	/**
 	 * @param string $url
-	 * @param string $postFields
+	 * @param string|array|null $postFields
+	 * @param array $headers
+	 *
+	 * @throws InvalidArgumentException
+	 * @return string|false
 	 */
 	public function post( $url, $postFields = null, $headers = array() ) {
-		Assert::parameterType( 'string', $url, '$url' );
+		$this->assertString( 'url', $url );
 
 		if ( !is_string( $postFields ) && !is_array( $postFields ) && !is_null( $postFields ) ) {
 			throw new \InvalidArgumentException( '$postFields must be a string, array or null' );
@@ -79,14 +86,21 @@ class HttpClient {
 			$this->connect();
 		}
 
-		//$headers[] = 'X-Wikimedia-Debug: 1';
-
 		$this->setCurlPostOpts( $url, $postFields, $headers );
 
 		return $this->request();
 	}
 
+	/**
+	 * @param string $url
+	 * @param string|array $postFields
+	 *
+	 * @throws InvalidArgumentException
+	 * @return string|false
+	 */
 	public function multipart( $url, $postFields ) {
+		$this->assertString( 'url', $url );
+
 		if ( !isset( $this->conn ) ) {
 			$this->connect();
 		}
@@ -112,6 +126,18 @@ class HttpClient {
 		return $response;
 	}
 
+	/**
+	 * @param string $param
+	 * @param mixed $value
+	 *
+	 * @throws \InvalidArgumentException
+ 	 */
+	private function assertString( $param, $value ) {
+		if ( !is_string( $value ) ) {
+			throw new \InvalidArgumentException( '$' . $param . ' must be a string' );
+		}
+	}
+
 	private function setGeneralCurlOpts() {
 		curl_setopt( $this->conn, CURLOPT_COOKIEFILE, $this->getCookieFileName() );
 		curl_setopt( $this->conn, CURLOPT_COOKIEJAR, $this->getCookieFileName() );
@@ -126,6 +152,7 @@ class HttpClient {
 		curl_setopt( $this->conn, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $this->conn, CURLOPT_HEADER, 0 );
 		curl_setopt( $this->conn, CURLOPT_HTTPHEADER, array( null ) );
+		curl_setopt( $this->conn, CURLOPT_CUSTOMREQUEST, 'GET' );
 		curl_setopt( $this->conn, CURLOPT_POST, false );
 		curl_setopt( $this->conn, CURLOPT_POSTFIELDS, null );
 	}
@@ -137,6 +164,7 @@ class HttpClient {
 		curl_setopt( $this->conn, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $this->conn, CURLOPT_HEADER, 0 );
 		curl_setopt( $this->conn, CURLOPT_POST, true );
+		curl_setopt( $this->conn, CURLOPT_CUSTOMREQUEST, 'POST' );
 		curl_setopt( $this->conn, CURLOPT_HTTPHEADER, array_merge( array( 'Expect:' ), $headers ) );
 		curl_setopt( $this->conn, CURLOPT_POSTFIELDS, $postFields );
 	}
