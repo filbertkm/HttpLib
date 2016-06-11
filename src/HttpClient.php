@@ -131,7 +131,7 @@ class HttpClient {
 	 * @param mixed $value
 	 *
 	 * @throws \InvalidArgumentException
- 	 */
+	 */
 	private function assertString( $param, $value ) {
 		if ( !is_string( $value ) ) {
 			throw new \InvalidArgumentException( '$' . $param . ' must be a string' );
