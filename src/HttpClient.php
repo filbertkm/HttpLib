@@ -131,7 +131,6 @@ class HttpClient {
 			'Content-Type' => 'multipart/form-data'
 		);
 
-
 		curl_setopt( $this->conn, CURLOPT_TIMEOUT, 500 );
 
 		return $this->post( $url, $postFields, $headers );
@@ -173,7 +172,7 @@ class HttpClient {
 	}
 
 	private function setGeneralCurlOpts() {
-        curl_setopt( $this->conn, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $this->conn, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $this->conn, CURLOPT_HEADER, 0 );
 		curl_setopt( $this->conn, CURLOPT_COOKIEFILE, $this->getCookieFileName() );
 		curl_setopt( $this->conn, CURLOPT_COOKIEJAR, $this->getCookieFileName() );
