@@ -18,6 +18,10 @@ Returns response as a string, if successful, or false.
 
 Also supports post and multipart requests.
 
+# License
+
+* [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0)
+
 # Release notes
 
 ## 0.2
