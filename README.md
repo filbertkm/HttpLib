@@ -17,3 +17,9 @@ $response = $httpClient->get( $url );
 Returns response as a string, if successful, or false.
 
 Also supports post and multipart requests.
+
+# Release notes
+
+## 0.2
+
+* Added download method.
